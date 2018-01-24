@@ -1,0 +1,15 @@
+package main
+
+import "fmt"
+
+func main() {
+    
+    //a continue within this loop will bring back execution to the beginning of the loop.  Checks and increments in for loop will be executed.
+
+    for i := 0; i<7 ; i++ { //control comes back here when there is a ‘continue’ within this for block
+        if i%2 == 0 { 
+            continue //if it is an even number, go back to beginning of for loop
+        }
+        fmt.Println("Odd:", i)  //execution will reach here only when i%2 is not 0, and therefore it is odd
+    }
+}
