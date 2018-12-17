@@ -6,31 +6,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 )
 
-const (
-	yandexEndpoint = "translate.yandex.net/api/v1.5/tr.json"
-	translateText  = "translate"
-	detectLanguage = "detect"
-)
-
-var (
-	inputText string
-	apiKey    string
-)
-
-type (
-	request  *http.Request
-	response struct {
-		StatusCode     int      `json:"code"`
-		Language       string   `json:"lang"`
-		TranslatedText []string `json:"text"`
-	}
-)
-
 func init() {
-	apiKey = os.Getenv("KEY")
+	apiKey = os.Getenv("YANDEX_KEY")
 	flag.StringVar(&inputText, "text", "", "text to translate")
 	flag.Parse()
 }
@@ -42,15 +23,17 @@ func main() {
 		return
 	}
 
-	url := buildRequestURL(yandexEndpoint, translateText, inputText, "en-es")
-	req, err := http.NewRequest("POST", url, nil)
+	url := buildRequestURL(translateText, inputText, translateDirection(English, Spanish))
+	newReq, err := http.NewRequest("POST", url, nil)
 	if err != nil {
 		log.Fatalf(fmt.Errorf("Unable to generate POST request").Error())
 	}
 
-	addHeaders(req)
-
-	res, err := http.DefaultClient.Do(req)
+	req := request{
+		HttpRequest: newReq,
+	}
+	req.addHeaders()
+	res, err := http.DefaultClient.Do(req.HttpRequest)
 	if err != nil {
 		log.Fatalf(fmt.Errorf("Unsuccessful POST request").Error())
 	}
@@ -61,17 +44,47 @@ func main() {
 	decoder.Decode(&r)
 	if r.StatusCode == 200 {
 		fmt.Println(r.TranslatedText)
+	} else {
+		log.Fatalf(fmt.Errorf("Could not handle Response [%v]", r).Error())
 	}
 }
 
-func addHeaders(r *http.Request) {
-	r.Header.Add("content-type", "multipart/form-data;")
-	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	r.Header.Add("Accept", "*/*")
-	r.Header.Add("Host", "translate.yandex.net")
-	r.Header.Add("Cache-Control", "no-cache")
+// func Gzip(h http.Handler) http.Handler {
+// 	wrapper := func(w http.ResponseWriter, r *http.Request) {
+// 		const coding = "gzip"
+// 		if !strings.Contains(r.Header.Get("Accept-Encoding"), coding) {
+// 			h.ServeHTTP(w, r)
+// 			return
+// 		}
+//
+// 		w.Header().Set("Content-Encoding", coding)
+// 		w.Header().Set("Vary", "Accept-Encoding") // See http://www.fastly.com/blog/best-practices-for-using-the-vary-header/
+// 		gz := gzWriterPool.Get().(*gzip.Writer)
+// 		gz.Reset(w)
+// 		defer func() {
+// 			gz.Close()
+// 			gzWriterPool.Put(gz)
+// 		}()
+//
+// 		h.ServeHTTP(&gzipResponseWriter{Writer: gz, ResponseWriter: w}, r)
+// 	}
+//
+// 	return http.HandlerFunc(wrapper)
+// }
+
+func (req request) addHeaders() {
+	req.HttpRequest.Header.Add("content-type", "multipart/form-data;")
+	req.HttpRequest.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.HttpRequest.Header.Add("Accept", "*/*")
+	req.HttpRequest.Header.Add("Host", "translate.yandex.net")
+	req.HttpRequest.Header.Add("Cache-Control", "no-cache")
 }
 
-func buildRequestURL(host, stub, text, lang string) string {
-	return fmt.Sprintf("https://%s/%s?key=%s&text=%s&lang=%s", host, stub, apiKey, text, lang)
+func buildRequestURL(stub, text, lang string) string {
+	parameters := url.Values{}
+	parameters.Add("key", apiKey)
+	parameters.Add("text", text)
+	parameters.Add("lang", lang)
+
+	return fmt.Sprintf("https://%s/%s?%s", yandexEndpoint, stub, parameters.Encode())
 }
