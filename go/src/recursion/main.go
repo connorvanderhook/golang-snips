@@ -13,10 +13,11 @@ func init() {
 }
 
 func recursive(n int) int {
+	fmt.Printf("%d\n", n)
+
 	if n == 1 {
 		return n
 	}
-	fmt.Printf("%d+%d\n", n, recursive(n-1))
 	return n + recursive(n-1)
 }
 
