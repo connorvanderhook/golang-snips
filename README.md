@@ -45,3 +45,6 @@ Create go worker pools
 
 ## yandex
 Interact with yandex language api
+
+## algorithms
+Implement the classic algorithms
