@@ -4,9 +4,8 @@ import (
 	"fmt"
 )
 
-
 type Graph struct {
-	vertices []*Vertex
+	vertices    []*Vertex
 	adjacencies map[*Vertex][]*Vertex
 }
 

@@ -13,7 +13,8 @@ func Test_bfs(t *testing.T) {
 	g.PrintGraph()
 
 	g.BFS(5, func(v *Vertex) {
-		fmt.Println("--- Test BFS ---")
-		fmt.Printf("%v\n", v)
-	})
+			fmt.Println("--- Test BFS ---")
+			fmt.Printf("%v\n", v)
+		}
+	)
 }
