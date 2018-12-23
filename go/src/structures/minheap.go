@@ -1,4 +1,9 @@
-package structures
+package main
+
+import (
+	"container/heap"
+	"fmt"
+)
 
 // Intheap copied from golang doc
 // mininum setup of integer min heap
@@ -30,26 +35,14 @@ type KthLargest struct {
 	K    int
 }
 
-// func Constructor(k int, nums []int) KthLargest {
-// 	h := &IntHeap{}
-// 	heap.Init(h)
-// 	// push all elements to the heap
-// 	for i := 0; i < len(nums); i++ {
-// 		heap.Push(h, nums[i])
-// 	}
-// 	// remove the smaller elements from the heap such that only the k largest elements are in the heap
-// 	for len(*h) > k {
-// 		heap.Pop(h)
-// 	}
-// 	return KthLargest{h, k}
-// }
-
-// func (this *KthLargest) Add(val int) int {
-// 	if len(*this.Nums) < this.K {
-// 		heap.Push(this.Nums, val)
-// 	} else if val > (*this.Nums)[0] {
-// 		heap.Push(this.Nums, val)
-// 		heap.Pop(this.Nums)
-// 	}
-// 	return (*this.Nums)[0]
-// }
+// This example inserts several ints into an IntHeap, checks the minimum,
+// and removes them in order of priority.
+func main() {
+	h := &IntHeap{2, 1, 5}
+	heap.Init(h)
+	heap.Push(h, 3)
+	fmt.Printf("minimum: %d\n", (*h)[0])
+	for h.Len() > 0 {
+		fmt.Printf("%d ", heap.Pop(h))
+	}
+}
